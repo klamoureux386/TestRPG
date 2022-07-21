@@ -10,16 +10,21 @@ UCLASS()
 class TESTRPG_API ASurroundingsChecker : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ASurroundingsChecker();
+	FVector GetGroundNormal(FVector startPos, std::vector<AActor*> actorsToIgnore);
+	float GetOrientedGroundAngle(FVector backRaycastStart, FVector frontRaycastStart, std::vector<AActor*> actorsToIgnore);
+
+private:
+	void ShowDebugMenu(bool show);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

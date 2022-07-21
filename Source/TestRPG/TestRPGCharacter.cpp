@@ -8,6 +8,8 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "SurroundingsChecker.h"
+
 //////////////////////////////////////////////////////////////////////////
 // ATestRPGCharacter
 
@@ -32,7 +34,8 @@ ATestRPGCharacter::ATestRPGCharacter()
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = 700.f;
+	GetCharacterMovement()->MaxAcceleration = 1500.0f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
@@ -49,6 +52,12 @@ ATestRPGCharacter::ATestRPGCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	//Set up Utility components
+	SurroundingsChecker = CreateDefaultSubobject<ASurroundingsChecker>(TEXT("SurroundingsChecker"));
+	raycastMaskIgnoreActors = std::vector<AActor*>();
+	raycastMaskIgnoreActors.push_back(this);
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,10 +65,15 @@ ATestRPGCharacter::ATestRPGCharacter()
 
 void ATestRPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Evade", IE_Pressed, this, &ATestRPGCharacter::StartSlide);
+	PlayerInputComponent->BindAction("Evade", IE_Released, this, &ATestRPGCharacter::EndSlide);
 
 	PlayerInputComponent->BindAxis("Move Forward / Backward", this, &ATestRPGCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("Move Right / Left", this, &ATestRPGCharacter::MoveRight);
@@ -71,20 +85,36 @@ void ATestRPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAxis("Turn Right / Left Gamepad", this, &ATestRPGCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("Look Up / Down Gamepad", this, &ATestRPGCharacter::LookUpAtRate);
-
-	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &ATestRPGCharacter::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &ATestRPGCharacter::TouchStopped);
 }
 
-void ATestRPGCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	Jump();
-}
+void ATestRPGCharacter::Tick(float deltaSeconds) {
 
-void ATestRPGCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	StopJumping();
+	Super::Tick(deltaSeconds);
+
+	bool debug = true;
+	if (debug) {
+		DrawDebugLines();
+	}
+
+	//For testing
+
+	FVector raycastRadius = GetActorForwardVector() * 10.0f;
+
+	SurroundingsChecker->GetOrientedGroundAngle(GetActorLocation() - raycastRadius, GetActorLocation() + raycastRadius, raycastMaskIgnoreActors);
+
+	if (ATestRPGCharacter::isSliding) {
+
+		//Draw Forward debug line
+		if (GEngine) {
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, VelocityAsString());
+		}
+		const float scale = 1.001f;
+
+		GetGroundNormal();
+
+		AddMovementInput(slideDirection, scale);
+	}
+
 }
 
 void ATestRPGCharacter::TurnAtRate(float Rate)
@@ -101,7 +131,9 @@ void ATestRPGCharacter::LookUpAtRate(float Rate)
 
 void ATestRPGCharacter::MoveForward(float Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f))
+	forwardInput = Value;
+
+	if ((Controller != nullptr) && (Value != 0.0f) && !isSliding)
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -109,21 +141,97 @@ void ATestRPGCharacter::MoveForward(float Value)
 
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		GetCharacterMovement()->MaxAcceleration = -10.0f;
 		AddMovementInput(Direction, Value);
 	}
 }
 
 void ATestRPGCharacter::MoveRight(float Value)
 {
-	if ( (Controller != nullptr) && (Value != 0.0f) )
+	rightInput = Value;
+
+	if ((Controller != nullptr) && (Value != 0.0f) && !isSliding)
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
+
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
+	}
+}
+
+void ATestRPGCharacter::StartSlide()
+{
+
+	isSliding = true;
+
+	slideDirection = GetActorForwardVector();
+	GetCharacterMovement()->MaxAcceleration = 500.0f;
+
+	if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Slide Start, Slide Direction: " + slideDirection.ToString()) + " Starting Velocity: " + VelocityAsString());
+		GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
+	}
+
+}
+
+void ATestRPGCharacter::EndSlide()
+{
+	isSliding = false;
+	GetCharacterMovement()->MaxAcceleration = 1500.0f;
+
+	if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Slide End"));
+		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+	}
+}
+
+FString ATestRPGCharacter::VelocityAsString() {
+
+	return FString::SanitizeFloat(GetCharacterMovement()->Velocity.Length());
+}
+
+FVector ATestRPGCharacter::GetGroundNormal() {
+
+	FVector Normal = SurroundingsChecker->GetGroundNormal(GetActorLocation(), raycastMaskIgnoreActors);
+
+	if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "Ground normal: " + Normal.ToString());
+	}
+
+
+	return Normal;
+}
+
+void ATestRPGCharacter::DrawDebugLines() {
+	FHitResult Hit = FHitResult(ForceInit);
+	FVector raycastDistance = FVector(0, 0, 100.0f);
+
+	FVector startPos = GetActorLocation();
+
+	FCollisionQueryParams CollisionParams = FCollisionQueryParams();
+	CollisionParams.bTraceComplex = true;
+	if (raycastMaskIgnoreActors.size() > 0) {
+		for (auto actor : raycastMaskIgnoreActors) {
+			CollisionParams.AddIgnoredActor(actor);
+		}
+	}
+
+	//Raycast Down
+	GetWorld()->LineTraceSingleByChannel(Hit, startPos, startPos - raycastDistance, ECC_WorldDynamic, CollisionParams);
+
+	//Straight down vertical line
+	DrawDebugLine(GetWorld(), startPos, startPos - raycastDistance, FColor::Red, false, 0, 0, 1.0f);
+	//Normal of ground impact
+	DrawDebugLine(GetWorld(), Hit.Location, Hit.Location + (Hit.Normal * 100), FColor::Blue, false, 0, 0, 1.0f);
+	//Forward vector
+	DrawDebugLine(GetWorld(), startPos, startPos + (GetActorForwardVector() * 100), FColor::Orange, false, 0, 0, 1.0f);
+
+	//If on a slope
+	if (Hit.Normal.Y != 0) {
+		//DrawDebugLine(GetWorld(), startPos, startPos)
 	}
 }
