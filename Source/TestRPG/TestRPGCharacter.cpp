@@ -111,7 +111,6 @@ void ATestRPGCharacter::Tick(float deltaSeconds) {
 		const float scale = 1.001f;
 
 		GetGroundNormal();
-
 		AddMovementInput(slideDirection, scale);
 	}
 
@@ -141,7 +140,6 @@ void ATestRPGCharacter::MoveForward(float Value)
 
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		GetCharacterMovement()->MaxAcceleration = -10.0f;
 		AddMovementInput(Direction, Value);
 	}
 }
