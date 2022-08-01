@@ -60,10 +60,10 @@ ATestRPGCharacter::ATestRPGCharacter()
 	raycastMaskIgnoreActors = TArray<AActor*>();
 	raycastMaskIgnoreActors.Push(this);
 
+	//SurroundingsChecker Setup
 	SurroundingsChecker = CreateDefaultSubobject<USurroundingsChecker>(TEXT("SurroundingsChecker"));
 	SurroundingsChecker->SetupAttachment(RootComponent);
-	SurroundingsChecker->SetRaycasts(raycastMaskIgnoreActors);
-	//SurroundingsChecker->SetRaycasts(GetActorLocation(), GetActorForwardVector(), 10.0f, raycastMaskIgnoreActors);
+	SurroundingsChecker->SetRaycastMask(raycastMaskIgnoreActors);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -30,13 +30,11 @@ public:
 
 	USurroundingsChecker();
 	// Sets default values for this actor's properties
-	void SetRaycasts(TArray<AActor*> _raycastMaskIgnoreActors);
+	void SetRaycastMask(TArray<AActor*> _raycastMaskIgnoreActors);
 	FVector GetGroundNormal();
 	float GetOrientedGroundAngle();
 
 private:
-	//FVector* frontRaycastPos;
-	//FVector* backRaycastPos;
 	TArray<AActor*> actorsToIgnore;
 
 	void DrawDebug(bool show);

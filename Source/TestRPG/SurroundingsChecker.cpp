@@ -6,20 +6,23 @@
 
 USurroundingsChecker::USurroundingsChecker()
 {
+	//Actor Center
 	ActorCenter = CreateDefaultSubobject<USceneComponent>(TEXT("ActorCenter"));
+	//Note: Do not use SetupAttachment()
+	ActorCenter->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	ActorCenter->SetRelativeLocation(FVector(0, 0, 0));
+	//Front Raycast Position
 	FrontRaycastPos = CreateDefaultSubobject<USceneComponent>(TEXT("FrontRaycastPos"));
+	FrontRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	FrontRaycastPos->SetRelativeLocation(FVector(10, 0, 0));
+	//Back Raycast Position
 	BackRaycastPos = CreateDefaultSubobject<USceneComponent>(TEXT("BackRaycastPos"));
+	BackRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	BackRaycastPos->SetRelativeLocation(FVector(-10, 0, 0));
-}
+}	
 
-void USurroundingsChecker::SetRaycasts(TArray<AActor*> raycastMaskIgnoreActors) {
+void USurroundingsChecker::SetRaycastMask(TArray<AActor*> raycastMaskIgnoreActors) {
 	USurroundingsChecker::actorsToIgnore = raycastMaskIgnoreActors;
-	//ActorCenter->SetRelativeLocation(actorLocation);
-	//FrontRaycastPos->SetRelativeLocation(actorLocation + actorForward * radiusBetweenRaycasts);
-	//BackRaycastPos->SetRelativeLocation(actorLocation - actorForward * radiusBetweenRaycasts);
-
 	DrawDebug(true);
 }
 

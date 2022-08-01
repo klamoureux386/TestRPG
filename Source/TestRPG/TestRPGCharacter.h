@@ -23,6 +23,17 @@ class ATestRPGCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Utility, meta = (AllowPrivateAccess = "true"))
 	class USurroundingsChecker* SurroundingsChecker;
 
+	/** SurroundingsChecker sub-objects */
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Utility, meta = (AllowPrivateAccess = "true"))
+	//	class USceneComponent* ActorCenter;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Utility, meta = (AllowPrivateAccess = "true"))
+	//	class USceneComponent* FrontRaycastPos;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Utility, meta = (AllowPrivateAccess = "true"))
+	//	class USceneComponent* BackRaycastPos;
+
+
 public:
 	ATestRPGCharacter();
 
