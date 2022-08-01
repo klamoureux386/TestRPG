@@ -11,16 +11,17 @@ class ATestRPGCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-		/** Camera boom positioning the camera behind the character */
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class USpringArmComponent* CameraBoom;
+	/** Camera boom positioning the camera behind the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* CameraBoom;
 
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class UCameraComponent* FollowCamera;
+	class UCameraComponent* FollowCamera;
 
+	/** SurroundingsChecker */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Utility, meta = (AllowPrivateAccess = "true"))
-		class ASurroundingsChecker* SurroundingsChecker;
+	class USurroundingsChecker* SurroundingsChecker;
 
 public:
 	ATestRPGCharacter();
@@ -70,7 +71,7 @@ private:
 	FString VelocityAsString();
 	FVector GetGroundNormal();
 	void DrawDebugLines();
-	std::vector<AActor*> raycastMaskIgnoreActors;
+	TArray<AActor*> raycastMaskIgnoreActors;
 
 protected:
 	// APawn interface
@@ -84,5 +85,6 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE class USurroundingsChecker* GetSurroundingsChecker() const { return SurroundingsChecker; }
 };
 

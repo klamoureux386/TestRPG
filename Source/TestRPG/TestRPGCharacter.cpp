@@ -53,11 +53,17 @@ ATestRPGCharacter::ATestRPGCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	//Set up Utility components
-	SurroundingsChecker = CreateDefaultSubobject<ASurroundingsChecker>(TEXT("SurroundingsChecker"));
-	raycastMaskIgnoreActors = std::vector<AActor*>();
-	raycastMaskIgnoreActors.push_back(this);
+	/*FrontRaycastPos = CreateDefaultSubobject<UActorComponent>(TEXT("FrontRaycastPos"));*/
 
+
+	//Set up Utility components
+	raycastMaskIgnoreActors = TArray<AActor*>();
+	raycastMaskIgnoreActors.Push(this);
+
+	SurroundingsChecker = CreateDefaultSubobject<USurroundingsChecker>(TEXT("SurroundingsChecker"));
+	SurroundingsChecker->SetupAttachment(RootComponent);
+	SurroundingsChecker->SetRaycasts(raycastMaskIgnoreActors);
+	//SurroundingsChecker->SetRaycasts(GetActorLocation(), GetActorForwardVector(), 10.0f, raycastMaskIgnoreActors);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -100,7 +106,7 @@ void ATestRPGCharacter::Tick(float deltaSeconds) {
 
 	FVector raycastRadius = GetActorForwardVector() * 10.0f;
 
-	SurroundingsChecker->GetOrientedGroundAngle(GetActorLocation() - raycastRadius, GetActorLocation() + raycastRadius, raycastMaskIgnoreActors);
+	SurroundingsChecker->GetOrientedGroundAngle();
 
 	if (ATestRPGCharacter::isSliding) {
 
@@ -194,7 +200,7 @@ FString ATestRPGCharacter::VelocityAsString() {
 
 FVector ATestRPGCharacter::GetGroundNormal() {
 
-	FVector Normal = SurroundingsChecker->GetGroundNormal(GetActorLocation(), raycastMaskIgnoreActors);
+	FVector Normal = SurroundingsChecker->GetGroundNormal();
 
 	if (GEngine) {
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "Ground normal: " + Normal.ToString());
@@ -212,7 +218,7 @@ void ATestRPGCharacter::DrawDebugLines() {
 
 	FCollisionQueryParams CollisionParams = FCollisionQueryParams();
 	CollisionParams.bTraceComplex = true;
-	if (raycastMaskIgnoreActors.size() > 0) {
+	if (raycastMaskIgnoreActors.Num() > 0) {
 		for (auto actor : raycastMaskIgnoreActors) {
 			CollisionParams.AddIgnoredActor(actor);
 		}
@@ -225,6 +231,8 @@ void ATestRPGCharacter::DrawDebugLines() {
 	DrawDebugLine(GetWorld(), startPos, startPos - raycastDistance, FColor::Red, false, 0, 0, 1.0f);
 	//Normal of ground impact
 	DrawDebugLine(GetWorld(), Hit.Location, Hit.Location + (Hit.Normal * 100), FColor::Blue, false, 0, 0, 1.0f);
+	//Forward adjustment for ground impact normal
+	// to do
 	//Forward vector
 	DrawDebugLine(GetWorld(), startPos, startPos + (GetActorForwardVector() * 100), FColor::Orange, false, 0, 0, 1.0f);
 

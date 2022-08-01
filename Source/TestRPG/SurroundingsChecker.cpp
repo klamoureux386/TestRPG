@@ -2,41 +2,46 @@
 
 
 #include "SurroundingsChecker.h"
+#include "Kismet/KismetMathLibrary.h"
 
-// Sets default values
-ASurroundingsChecker::ASurroundingsChecker()
+USurroundingsChecker::USurroundingsChecker()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	ActorCenter = CreateDefaultSubobject<USceneComponent>(TEXT("ActorCenter"));
+	ActorCenter->SetRelativeLocation(FVector(0, 0, 0));
+	FrontRaycastPos = CreateDefaultSubobject<USceneComponent>(TEXT("FrontRaycastPos"));
+	FrontRaycastPos->SetRelativeLocation(FVector(10, 0, 0));
+	BackRaycastPos = CreateDefaultSubobject<USceneComponent>(TEXT("BackRaycastPos"));
+	BackRaycastPos->SetRelativeLocation(FVector(-10, 0, 0));
+}
 
-	ShowDebugMenu(true);
+void USurroundingsChecker::SetRaycasts(TArray<AActor*> raycastMaskIgnoreActors) {
+	USurroundingsChecker::actorsToIgnore = raycastMaskIgnoreActors;
+	//ActorCenter->SetRelativeLocation(actorLocation);
+	//FrontRaycastPos->SetRelativeLocation(actorLocation + actorForward * radiusBetweenRaycasts);
+	//BackRaycastPos->SetRelativeLocation(actorLocation - actorForward * radiusBetweenRaycasts);
 
+	DrawDebug(true);
 }
 
 // Called when the game starts or when spawned
-void ASurroundingsChecker::BeginPlay()
+void USurroundingsChecker::BeginPlay()
 {
 	Super::BeginPlay();
 
 }
 
-// Called every frame
-void ASurroundingsChecker::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 //https://forums.unrealengine.com/t/c-how-to-ignore-the-character-actor-while-line-tracing/354776/3
-FVector ASurroundingsChecker::GetGroundNormal(FVector startPos, std::vector<AActor*> actorsToIgnore = std::vector<AActor*>()) {
+FVector USurroundingsChecker::GetGroundNormal() {
 
 	FHitResult Hit = FHitResult(ForceInit);
 	FVector raycastDistance = FVector(0, 0, 100.0f);
 
+	FVector startPos = ActorCenter->GetComponentLocation();
+
 	FCollisionQueryParams CollisionParams = FCollisionQueryParams();
 	CollisionParams.bTraceComplex = true;
 
-	if (actorsToIgnore.size() > 0) {
+	if (actorsToIgnore.Num() > 0) {
 		for (auto actor : actorsToIgnore) {
 			CollisionParams.AddIgnoredActor(actor);
 		}
@@ -48,8 +53,8 @@ FVector ASurroundingsChecker::GetGroundNormal(FVector startPos, std::vector<AAct
 	if (debug)
 	{
 		//InitialRaycast
-		//DrawDebugLine(GetWorld(), startPos, startPos - raycastDistance, FColor::Red, false, 0, 0, 1.0f);
-		//DrawDebugLine(GetWorld(), Hit.Location, Hit.Location + (Hit.Normal * 100), FColor::Blue, false, 0, 0, 1.0f);
+		DrawDebugLine(GetWorld(), startPos, startPos - raycastDistance, FColor::Red, false, 0, 0, 1.0f);
+		DrawDebugLine(GetWorld(), Hit.Location, Hit.Location + (Hit.Normal * 100), FColor::Blue, false, 0, 0, 1.0f);
 
 		//Debug message to ensure raycast masking works
 		if (GEngine) {
@@ -60,18 +65,62 @@ FVector ASurroundingsChecker::GetGroundNormal(FVector startPos, std::vector<AAct
 	return Hit.Normal;
 }
 
-float ASurroundingsChecker::GetOrientedGroundAngle(FVector backRaycastStart, FVector frontRaycastStart, std::vector<AActor*> actorsToIgnore = std::vector<AActor*>()) {
+void USurroundingsChecker::SetGroundAngle() {
 
 	FHitResult BackHit = FHitResult(ForceInit);
 	FHitResult FrontHit = FHitResult(ForceInit);
 	FVector raycastDistance = FVector(0, 0, 110.0f);
+
+	FVector backRaycastStart = BackRaycastPos->GetComponentLocation();
+	FVector frontRaycastStart = FrontRaycastPos->GetComponentLocation();
 
 	FCollisionQueryParams CollisionParams = FCollisionQueryParams();
 	CollisionParams.bTraceComplex = true;
 
 	CollisionParams.bTraceComplex = true;
 
-	if (actorsToIgnore.size() > 0) {
+	if (actorsToIgnore.Num() > 0) {
+		for (auto actor : actorsToIgnore) {
+			CollisionParams.AddIgnoredActor(actor);
+		}
+	}
+
+	GetWorld()->LineTraceSingleByChannel(BackHit, backRaycastStart, backRaycastStart - raycastDistance, ECC_WorldDynamic, CollisionParams);
+	GetWorld()->LineTraceSingleByChannel(FrontHit, frontRaycastStart, frontRaycastStart - raycastDistance, ECC_WorldDynamic, CollisionParams);
+
+	if (BackHit.IsValidBlockingHit() && FrontHit.IsValidBlockingHit()) {
+		FVector flatLineForward = BackHit.Location.ForwardVector;
+		FVector flatLineAngled = FrontHit.Location - BackHit.Location;
+
+		FRotator rotation = UKismetMathLibrary::FindLookAtRotation(flatLineForward, flatLineAngled);
+		double angle = rotation.Pitch;
+
+		RelativeGroundAngle = rotation.Pitch;
+	}
+
+}
+
+float USurroundingsChecker::GetOrientedGroundAngle() {
+
+	FHitResult BackHit = FHitResult(ForceInit);
+	FHitResult FrontHit = FHitResult(ForceInit);
+	FVector raycastDistance = FVector(0, 0, 110.0f);
+
+	FVector backRaycastStart = BackRaycastPos->GetComponentLocation();
+	FVector frontRaycastStart = FrontRaycastPos->GetComponentLocation();
+
+	//Debug message for raycast positions
+	if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "SurroundingsCheckerPos: " + GetComponentLocation().ToString());
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "backRaycastStart: " + backRaycastStart.ToString());
+	}
+
+	FCollisionQueryParams CollisionParams = FCollisionQueryParams();
+	CollisionParams.bTraceComplex = true;
+
+	CollisionParams.bTraceComplex = true;
+
+	if (actorsToIgnore.Num() > 0) {
 		for (auto actor : actorsToIgnore) {
 			CollisionParams.AddIgnoredActor(actor);
 		}
@@ -99,7 +148,18 @@ float ASurroundingsChecker::GetOrientedGroundAngle(FVector backRaycastStart, FVe
 		if (BackHit.IsValidBlockingHit() && FrontHit.IsValidBlockingHit()) {
 			//Draw slope average purple line
 			FVector heightIncreaseForLineVisiblity = FVector(0.0f, 0.0f, 1.0f);
-			DrawDebugLine(GetWorld(), BackHit.Location + heightIncreaseForLineVisiblity, FrontHit.Location + heightIncreaseForLineVisiblity, FColor::Purple, false, 0, 0, 1.0f);
+			DrawDebugLine(GetWorld(), BackHit.Location + heightIncreaseForLineVisiblity, FrontHit.Location + heightIncreaseForLineVisiblity, FColor::Blue, false, 0, 0, 1.0f);
+			
+			FVector flatLineForward = BackHit.Location.ForwardVector;
+			FVector flatLineAngled = FrontHit.Location - BackHit.Location;
+
+			FRotator rotation = UKismetMathLibrary::FindLookAtRotation(flatLineForward, flatLineAngled);
+			double angle = rotation.Pitch;
+			//Debug message to ensure raycast masking works
+			if (GEngine) {
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "groundAngle: " + FString::SanitizeFloat(angle));
+			}
+
 		}
 	}
 
@@ -107,7 +167,7 @@ float ASurroundingsChecker::GetOrientedGroundAngle(FVector backRaycastStart, FVe
 
 }
 
-void ASurroundingsChecker::ShowDebugMenu(bool show) {
+void USurroundingsChecker::DrawDebug(bool show) {
 
 	if (!show)
 		return;
