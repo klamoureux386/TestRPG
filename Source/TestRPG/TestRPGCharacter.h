@@ -20,7 +20,7 @@ class ATestRPGCharacter : public ACharacter
 	class UCameraComponent* FollowCamera;
 
 	/** SurroundingsChecker */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Utility, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Utility", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USurroundingsChecker* SurroundingsChecker;
 
 	/** SurroundingsChecker sub-objects */
@@ -51,7 +51,6 @@ public:
 	float rightInput = 0.0f;
 
 protected:
-	/*class ASurroundingsChecker* surroundingsChecker;*/
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
