@@ -80,7 +80,6 @@ protected:
 private:
 
 	FString VelocityAsString();
-	FVector GetGroundNormal();
 	void DrawDebugLines();
 	TArray<AActor*> raycastMaskIgnoreActors;
 

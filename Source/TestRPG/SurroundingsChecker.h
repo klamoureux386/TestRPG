@@ -29,16 +29,17 @@ class TESTRPG_API USurroundingsChecker : public USceneComponent
 public:
 
 	USurroundingsChecker();
+	void GetSurroundings();
+	double OrientedGroundAngle;
+	FVector GroundNormal;
 	// Sets default values for this actor's properties
 	void SetRaycastMask(TArray<AActor*> _raycastMaskIgnoreActors);
-	FVector GetGroundNormal();
-	float GetOrientedGroundAngle();
 
 private:
 	TArray<AActor*> actorsToIgnore;
-
+	void SetGroundNormal();
+	void SetOrientedGroundAngle();
 	void DrawDebug(bool show);
-	void SetGroundAngle();
 
 protected:
 	// Called when the game starts or when spawned

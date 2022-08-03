@@ -62,7 +62,9 @@ ATestRPGCharacter::ATestRPGCharacter()
 
 	//SurroundingsChecker Setup
 	SurroundingsChecker = CreateDefaultSubobject<USurroundingsChecker>(TEXT("SurroundingsChecker"));
-	SurroundingsChecker->SetupAttachment(RootComponent);
+	//Don't use Setup Attachment
+	//SurroundingsChecker->SetupAttachment(RootComponent);
+	SurroundingsChecker->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "SurroundingsChecker2");
 	SurroundingsChecker->SetRaycastMask(raycastMaskIgnoreActors);
 }
 
@@ -106,7 +108,7 @@ void ATestRPGCharacter::Tick(float deltaSeconds) {
 
 	FVector raycastRadius = GetActorForwardVector() * 10.0f;
 
-	SurroundingsChecker->GetOrientedGroundAngle();
+	SurroundingsChecker->GetSurroundings();
 
 	if (ATestRPGCharacter::isSliding) {
 
@@ -116,7 +118,6 @@ void ATestRPGCharacter::Tick(float deltaSeconds) {
 		}
 		const float scale = 1.001f;
 
-		GetGroundNormal();
 		AddMovementInput(slideDirection, scale);
 	}
 
@@ -198,18 +199,6 @@ FString ATestRPGCharacter::VelocityAsString() {
 	return FString::SanitizeFloat(GetCharacterMovement()->Velocity.Length());
 }
 
-FVector ATestRPGCharacter::GetGroundNormal() {
-
-	FVector Normal = SurroundingsChecker->GetGroundNormal();
-
-	if (GEngine) {
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "Ground normal: " + Normal.ToString());
-	}
-
-
-	return Normal;
-}
-
 void ATestRPGCharacter::DrawDebugLines() {
 	FHitResult Hit = FHitResult(ForceInit);
 	FVector raycastDistance = FVector(0, 0, 100.0f);
@@ -232,7 +221,10 @@ void ATestRPGCharacter::DrawDebugLines() {
 	//Normal of ground impact
 	DrawDebugLine(GetWorld(), Hit.Location, Hit.Location + (Hit.Normal * 100), FColor::Blue, false, 0, 0, 1.0f);
 	//Forward adjustment for ground impact normal
-	// to do
+	FVector3d groundRotateAngle = GetActorForwardVector().RotateAngleAxis(SurroundingsChecker->OrientedGroundAngle * (PI/180) * 100, GetActorForwardVector().RightVector);
+
+	DrawDebugLine(GetWorld(), startPos, startPos + groundRotateAngle * 100 , FColor::Blue, false, 0, 0, 1.0f);
+	//DrawDebugLine(GetWorld(), startPos, startPos + (GetActorForwardVector().RotateAngleAxis(SurroundingsChecker->OrientedGroundAngle, FVector3d::YAxisVector)) * 100, FColor::Blue, false, 0, 0, 1.0f);
 	//Forward vector
 	DrawDebugLine(GetWorld(), startPos, startPos + (GetActorForwardVector() * 100), FColor::Orange, false, 0, 0, 1.0f);
 

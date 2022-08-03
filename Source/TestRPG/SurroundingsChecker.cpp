@@ -9,15 +9,15 @@ USurroundingsChecker::USurroundingsChecker()
 	//Actor Center
 	ActorCenter = CreateDefaultSubobject<USceneComponent>(TEXT("ActorCenter"));
 	//Note: Do not use SetupAttachment()
-	ActorCenter->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	ActorCenter->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "ActorCenter2");
 	ActorCenter->SetRelativeLocation(FVector(0, 0, 0));
 	//Front Raycast Position
 	FrontRaycastPos = CreateDefaultSubobject<USceneComponent>(TEXT("FrontRaycastPos"));
-	FrontRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	FrontRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "FrontRaycastPos2");
 	FrontRaycastPos->SetRelativeLocation(FVector(10, 0, 0));
 	//Back Raycast Position
 	BackRaycastPos = CreateDefaultSubobject<USceneComponent>(TEXT("BackRaycastPos"));
-	BackRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	BackRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "BackRaycastPos2");
 	BackRaycastPos->SetRelativeLocation(FVector(-10, 0, 0));
 }	
 
@@ -33,8 +33,14 @@ void USurroundingsChecker::BeginPlay()
 
 }
 
+void USurroundingsChecker::GetSurroundings() 
+{
+	SetGroundNormal();
+	SetOrientedGroundAngle();
+}
+
 //https://forums.unrealengine.com/t/c-how-to-ignore-the-character-actor-while-line-tracing/354776/3
-FVector USurroundingsChecker::GetGroundNormal() {
+void USurroundingsChecker::SetGroundNormal() {
 
 	FHitResult Hit = FHitResult(ForceInit);
 	FVector raycastDistance = FVector(0, 0, 100.0f);
@@ -65,45 +71,11 @@ FVector USurroundingsChecker::GetGroundNormal() {
 		}
 	}
 
-	return Hit.Normal;
-}
-
-void USurroundingsChecker::SetGroundAngle() {
-
-	FHitResult BackHit = FHitResult(ForceInit);
-	FHitResult FrontHit = FHitResult(ForceInit);
-	FVector raycastDistance = FVector(0, 0, 110.0f);
-
-	FVector backRaycastStart = BackRaycastPos->GetComponentLocation();
-	FVector frontRaycastStart = FrontRaycastPos->GetComponentLocation();
-
-	FCollisionQueryParams CollisionParams = FCollisionQueryParams();
-	CollisionParams.bTraceComplex = true;
-
-	CollisionParams.bTraceComplex = true;
-
-	if (actorsToIgnore.Num() > 0) {
-		for (auto actor : actorsToIgnore) {
-			CollisionParams.AddIgnoredActor(actor);
-		}
-	}
-
-	GetWorld()->LineTraceSingleByChannel(BackHit, backRaycastStart, backRaycastStart - raycastDistance, ECC_WorldDynamic, CollisionParams);
-	GetWorld()->LineTraceSingleByChannel(FrontHit, frontRaycastStart, frontRaycastStart - raycastDistance, ECC_WorldDynamic, CollisionParams);
-
-	if (BackHit.IsValidBlockingHit() && FrontHit.IsValidBlockingHit()) {
-		FVector flatLineForward = BackHit.Location.ForwardVector;
-		FVector flatLineAngled = FrontHit.Location - BackHit.Location;
-
-		FRotator rotation = UKismetMathLibrary::FindLookAtRotation(flatLineForward, flatLineAngled);
-		double angle = rotation.Pitch;
-
-		RelativeGroundAngle = rotation.Pitch;
-	}
+	GroundNormal = Hit.Normal;
 
 }
 
-float USurroundingsChecker::GetOrientedGroundAngle() {
+void USurroundingsChecker::SetOrientedGroundAngle() {
 
 	FHitResult BackHit = FHitResult(ForceInit);
 	FHitResult FrontHit = FHitResult(ForceInit);
@@ -119,8 +91,6 @@ float USurroundingsChecker::GetOrientedGroundAngle() {
 	}
 
 	FCollisionQueryParams CollisionParams = FCollisionQueryParams();
-	CollisionParams.bTraceComplex = true;
-
 	CollisionParams.bTraceComplex = true;
 
 	if (actorsToIgnore.Num() > 0) {
@@ -160,13 +130,15 @@ float USurroundingsChecker::GetOrientedGroundAngle() {
 			double angle = rotation.Pitch;
 			//Debug message to ensure raycast masking works
 			if (GEngine) {
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "groundAngle: " + FString::SanitizeFloat(angle));
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "orientedGroundAngle: " + FString::SanitizeFloat(angle));
 			}
 
+			OrientedGroundAngle = angle;
+		}
+		else {
+			OrientedGroundAngle = 0;
 		}
 	}
-
-	return 0.0f;
 
 }
 
