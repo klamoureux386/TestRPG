@@ -7,18 +7,22 @@
 USurroundingsChecker::USurroundingsChecker()
 {
 	//Actor Center
-	ActorCenter = CreateDefaultSubobject<USceneComponent>(TEXT("ActorCenter"));
 	//Note: Do not use SetupAttachment()
-	ActorCenter->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "ActorCenter2");
+	ActorCenter = CreateDefaultSubobject<USceneComponent>(TEXT("ActorCenter"));
+	ActorCenter->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	ActorCenter->SetRelativeLocation(FVector(0, 0, 0));
 	//Front Raycast Position
+	//FrontRaycastPos = NewObject<USceneComponent>(this, USceneComponent::StaticClass(), "FrontRaycastPos");
 	FrontRaycastPos = CreateDefaultSubobject<USceneComponent>(TEXT("FrontRaycastPos"));
-	FrontRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "FrontRaycastPos2");
+	FrontRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	FrontRaycastPos->SetRelativeLocation(FVector(10, 0, 0));
 	//Back Raycast Position
+	//BackRaycastPos = NewObject<USceneComponent>(this, USceneComponent::StaticClass(), "BackRaycastPos");
 	BackRaycastPos = CreateDefaultSubobject<USceneComponent>(TEXT("BackRaycastPos"));
-	BackRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "BackRaycastPos2");
+	BackRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	BackRaycastPos->SetRelativeLocation(FVector(-10, 0, 0));
+
+	//https://forums.unrealengine.com/t/what-an-i-missing-in-regards-to-parenting/379003/2
 }	
 
 void USurroundingsChecker::SetRaycastMask(TArray<AActor*> raycastMaskIgnoreActors) {
@@ -67,7 +71,7 @@ void USurroundingsChecker::SetGroundNormal() {
 
 		//Debug message to ensure raycast masking works
 		if (GEngine) {
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, Hit.GetComponent() != nullptr ? Hit.GetComponent()->GetName() : "No name found");
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, Hit.GetComponent() != nullptr ? Hit.GetComponent()->GetName() : "No name found");
 		}
 	}
 
@@ -86,7 +90,7 @@ void USurroundingsChecker::SetOrientedGroundAngle() {
 
 	//Debug message for raycast positions
 	if (GEngine) {
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "SurroundingsCheckerPos: " + GetComponentLocation().ToString());
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "SurroundingsCheckerPos: " + GetComponentLocation().ToString());
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "backRaycastStart: " + backRaycastStart.ToString());
 	}
 

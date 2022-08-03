@@ -221,8 +221,8 @@ void ATestRPGCharacter::DrawDebugLines() {
 	//Normal of ground impact
 	DrawDebugLine(GetWorld(), Hit.Location, Hit.Location + (Hit.Normal * 100), FColor::Blue, false, 0, 0, 1.0f);
 	//Forward adjustment for ground impact normal
-	FVector3d groundRotateAngle = GetActorForwardVector().RotateAngleAxis(SurroundingsChecker->OrientedGroundAngle * (PI/180) * 100, GetActorForwardVector().RightVector);
-
+	FVector3d groundRotateAngle = GetActorForwardVector().RotateAngleAxis(SurroundingsChecker->OrientedGroundAngle, GetActorRightVector());
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Ground Rotate Angle: " + groundRotateAngle.ToString()));
 	DrawDebugLine(GetWorld(), startPos, startPos + groundRotateAngle * 100 , FColor::Blue, false, 0, 0, 1.0f);
 	//DrawDebugLine(GetWorld(), startPos, startPos + (GetActorForwardVector().RotateAngleAxis(SurroundingsChecker->OrientedGroundAngle, FVector3d::YAxisVector)) * 100, FColor::Blue, false, 0, 0, 1.0f);
 	//Forward vector

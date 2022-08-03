@@ -13,17 +13,17 @@ class TESTRPG_API USurroundingsChecker : public USceneComponent
 {
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Utility, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Utility", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* ActorCenter;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Utility, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Utility", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* FrontRaycastPos;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Utility, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Utility", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* BackRaycastPos;
 
 	/** Relative Ground Angle */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Utility, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Utility", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float RelativeGroundAngle;
 
 public:
