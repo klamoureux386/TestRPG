@@ -22,15 +22,14 @@ class TESTRPG_API USurroundingsChecker : public USceneComponent
 	UPROPERTY(Category = "Utility", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USceneComponent* BackRaycastPos;
 
+public:
+
 	/** Relative Ground Angle */
 	UPROPERTY(Category = "Utility", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float RelativeGroundAngle;
-
-public:
+	double OrientedGroundAngle;
 
 	USurroundingsChecker();
 	void GetSurroundings();
-	double OrientedGroundAngle;
 	FVector GroundNormal;
 	// Sets default values for this actor's properties
 	void SetRaycastMask(TArray<AActor*> _raycastMaskIgnoreActors);

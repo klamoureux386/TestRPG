@@ -9,17 +9,23 @@ USurroundingsChecker::USurroundingsChecker()
 	//Actor Center
 	//Note: Do not use SetupAttachment()
 	ActorCenter = CreateDefaultSubobject<USceneComponent>(TEXT("ActorCenter"));
-	ActorCenter->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	ActorCenter->SetupAttachment(this, "ActorCenter");
+
+	//ActorCenter->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	ActorCenter->SetRelativeLocation(FVector(0, 0, 0));
 	//Front Raycast Position
 	//FrontRaycastPos = NewObject<USceneComponent>(this, USceneComponent::StaticClass(), "FrontRaycastPos");
 	FrontRaycastPos = CreateDefaultSubobject<USceneComponent>(TEXT("FrontRaycastPos"));
-	FrontRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	FrontRaycastPos->SetupAttachment(this, "FrontRaycastPos");
+
+	//FrontRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	FrontRaycastPos->SetRelativeLocation(FVector(10, 0, 0));
 	//Back Raycast Position
 	//BackRaycastPos = NewObject<USceneComponent>(this, USceneComponent::StaticClass(), "BackRaycastPos");
 	BackRaycastPos = CreateDefaultSubobject<USceneComponent>(TEXT("BackRaycastPos"));
-	BackRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	BackRaycastPos->SetupAttachment(this, "BackRaycastPos");
+
+	//BackRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	BackRaycastPos->SetRelativeLocation(FVector(-10, 0, 0));
 
 	//https://forums.unrealengine.com/t/what-an-i-missing-in-regards-to-parenting/379003/2
