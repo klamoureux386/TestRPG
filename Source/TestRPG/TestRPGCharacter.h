@@ -38,14 +38,17 @@ public:
 	ATestRPGCharacter();
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input)
-		float TurnRateGamepad;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input")
+	float TurnRateGamepad;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = State)
-		bool isSliding = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	bool isSliding = false;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = State)
-		FVector slideDirection = FVector(0, 0, 0);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
+	FVector slideDirection = FVector(0, 0, 0);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
+	bool ShowDebug = true;
 
 	float forwardInput = 0.0f;
 	float rightInput = 0.0f;

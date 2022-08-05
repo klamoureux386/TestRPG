@@ -99,8 +99,7 @@ void ATestRPGCharacter::Tick(float deltaSeconds) {
 
 	Super::Tick(deltaSeconds);
 
-	bool debug = true;
-	if (debug) {
+	if (ShowDebug) {
 		DrawDebugLines();
 	}
 
@@ -113,7 +112,7 @@ void ATestRPGCharacter::Tick(float deltaSeconds) {
 	if (ATestRPGCharacter::isSliding) {
 
 		//Draw Forward debug line
-		if (GEngine) {
+		if (GEngine && ShowDebug) {
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, VelocityAsString());
 		}
 		const float scale = 1.001f;
@@ -176,7 +175,7 @@ void ATestRPGCharacter::StartSlide()
 	slideDirection = GetActorForwardVector();
 	GetCharacterMovement()->MaxAcceleration = 500.0f;
 
-	if (GEngine) {
+	if (GEngine && ShowDebug) {
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Slide Start, Slide Direction: " + slideDirection.ToString()) + " Starting Velocity: " + VelocityAsString());
 		GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
 	}
@@ -188,7 +187,7 @@ void ATestRPGCharacter::EndSlide()
 	isSliding = false;
 	GetCharacterMovement()->MaxAcceleration = 1500.0f;
 
-	if (GEngine) {
+	if (GEngine && ShowDebug) {
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Slide End"));
 		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	}
@@ -224,7 +223,7 @@ void ATestRPGCharacter::DrawDebugLines() {
 	double groundAngle = SurroundingsChecker->OrientedGroundAngle;
 	FVector3d groundRotateAngle = GetActorForwardVector().RotateAngleAxis(groundAngle, -GetActorRightVector());
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Ground Rotate Angle: " + groundRotateAngle.ToString()));
-	DrawDebugLine(GetWorld(), startPos, startPos + groundRotateAngle * 100 , FColor::Blue, false, 0, 0, 1.0f);
+	DrawDebugLine(GetWorld(), startPos, startPos + groundRotateAngle * 100, FColor::Blue, false, 0, 0, 1.0f);
 	//DrawDebugLine(GetWorld(), startPos, startPos + (GetActorForwardVector().RotateAngleAxis(SurroundingsChecker->OrientedGroundAngle, FVector3d::YAxisVector)) * 100, FColor::Blue, false, 0, 0, 1.0f);
 	//Forward vector
 	DrawDebugLine(GetWorld(), startPos, startPos + (GetActorForwardVector() * 100), FColor::Orange, false, 0, 0, 1.0f);

@@ -9,23 +9,17 @@ USurroundingsChecker::USurroundingsChecker()
 	//Actor Center
 	//Note: Do not use SetupAttachment()
 	ActorCenter = CreateDefaultSubobject<USceneComponent>(TEXT("ActorCenter"));
-	ActorCenter->SetupAttachment(this, "ActorCenter");
-
-	//ActorCenter->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	ActorCenter->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	ActorCenter->SetRelativeLocation(FVector(0, 0, 0));
 	//Front Raycast Position
 	//FrontRaycastPos = NewObject<USceneComponent>(this, USceneComponent::StaticClass(), "FrontRaycastPos");
 	FrontRaycastPos = CreateDefaultSubobject<USceneComponent>(TEXT("FrontRaycastPos"));
-	FrontRaycastPos->SetupAttachment(this, "FrontRaycastPos");
-
-	//FrontRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	FrontRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	FrontRaycastPos->SetRelativeLocation(FVector(10, 0, 0));
 	//Back Raycast Position
 	//BackRaycastPos = NewObject<USceneComponent>(this, USceneComponent::StaticClass(), "BackRaycastPos");
 	BackRaycastPos = CreateDefaultSubobject<USceneComponent>(TEXT("BackRaycastPos"));
-	BackRaycastPos->SetupAttachment(this, "BackRaycastPos");
-
-	//BackRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	BackRaycastPos->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	BackRaycastPos->SetRelativeLocation(FVector(-10, 0, 0));
 
 	//https://forums.unrealengine.com/t/what-an-i-missing-in-regards-to-parenting/379003/2
@@ -68,8 +62,7 @@ void USurroundingsChecker::SetGroundNormal() {
 
 	GetWorld()->LineTraceSingleByChannel(Hit, startPos, startPos - raycastDistance, ECC_WorldDynamic, CollisionParams);
 
-	bool debug = true;
-	if (debug)
+	if (ShowDebug)
 	{
 		//InitialRaycast
 		DrawDebugLine(GetWorld(), startPos, startPos - raycastDistance, FColor::Red, false, 0, 0, 1.0f);
@@ -89,14 +82,13 @@ void USurroundingsChecker::SetOrientedGroundAngle() {
 
 	FHitResult BackHit = FHitResult(ForceInit);
 	FHitResult FrontHit = FHitResult(ForceInit);
-	FVector raycastDistance = FVector(0, 0, 110.0f);
+	FVector raycastDistance = FVector(0, 0, 125.0f);
 
 	FVector backRaycastStart = BackRaycastPos->GetComponentLocation();
 	FVector frontRaycastStart = FrontRaycastPos->GetComponentLocation();
 
 	//Debug message for raycast positions
-	if (GEngine) {
-		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "SurroundingsCheckerPos: " + GetComponentLocation().ToString());
+	if (GEngine && ShowDebug) {
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "backRaycastStart: " + backRaycastStart.ToString());
 	}
 
@@ -112,8 +104,25 @@ void USurroundingsChecker::SetOrientedGroundAngle() {
 	GetWorld()->LineTraceSingleByChannel(BackHit, backRaycastStart, backRaycastStart - raycastDistance, ECC_WorldDynamic, CollisionParams);
 	GetWorld()->LineTraceSingleByChannel(FrontHit, frontRaycastStart, frontRaycastStart - raycastDistance, ECC_WorldDynamic, CollisionParams);
 
-	bool debug = true;
-	if (debug) {
+	if (BackHit.IsValidBlockingHit() && FrontHit.IsValidBlockingHit()) {
+		FVector flatLineForward = BackHit.Location.ForwardVector;
+		FVector flatLineAngled = FrontHit.Location - BackHit.Location;
+
+		FRotator rotation = UKismetMathLibrary::FindLookAtRotation(flatLineForward, flatLineAngled);
+		double angle = rotation.Pitch;
+		//Debug message to ensure raycast masking works
+		if (GEngine && ShowDebug) {
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "orientedGroundAngle: " + FString::SanitizeFloat(angle));
+		}
+
+		OrientedGroundAngle = angle;
+	}
+	else {
+		OrientedGroundAngle = 0;
+	}
+	
+
+	if (ShowDebug) {
 		//Draw raycast source position purple lines
 		DrawDebugLine(GetWorld(), backRaycastStart, backRaycastStart - raycastDistance, FColor::Purple, false, 0, 0, 1.0f);
 		DrawDebugLine(GetWorld(), frontRaycastStart, frontRaycastStart - raycastDistance, FColor::Purple, false, 0, 0, 1.0f);
@@ -132,22 +141,8 @@ void USurroundingsChecker::SetOrientedGroundAngle() {
 			//Draw slope average purple line
 			FVector heightIncreaseForLineVisiblity = FVector(0.0f, 0.0f, 1.0f);
 			DrawDebugLine(GetWorld(), BackHit.Location + heightIncreaseForLineVisiblity, FrontHit.Location + heightIncreaseForLineVisiblity, FColor::Blue, false, 0, 0, 1.0f);
-			
-			FVector flatLineForward = BackHit.Location.ForwardVector;
-			FVector flatLineAngled = FrontHit.Location - BackHit.Location;
-
-			FRotator rotation = UKismetMathLibrary::FindLookAtRotation(flatLineForward, flatLineAngled);
-			double angle = rotation.Pitch;
-			//Debug message to ensure raycast masking works
-			if (GEngine) {
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "orientedGroundAngle: " + FString::SanitizeFloat(angle));
-			}
-
-			OrientedGroundAngle = angle;
 		}
-		else {
-			OrientedGroundAngle = 0;
-		}
+
 	}
 
 }

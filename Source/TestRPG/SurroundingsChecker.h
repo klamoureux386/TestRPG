@@ -28,6 +28,10 @@ public:
 	UPROPERTY(Category = "Utility", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	double OrientedGroundAngle;
 
+	/** Show Debug */
+	UPROPERTY(Category = "Debug", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	bool ShowDebug = true;
+
 	USurroundingsChecker();
 	void GetSurroundings();
 	FVector GroundNormal;
