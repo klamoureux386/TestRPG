@@ -62,9 +62,7 @@ ATestRPGCharacter::ATestRPGCharacter()
 
 	//SurroundingsChecker Setup
 	SurroundingsChecker = CreateDefaultSubobject<USurroundingsChecker>(TEXT("SurroundingsChecker"));
-	//Don't use Setup Attachment
 	SurroundingsChecker->SetupAttachment(RootComponent);
-	//SurroundingsChecker->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale, "SurroundingsChecker2");
 	SurroundingsChecker->SetRaycastMask(raycastMaskIgnoreActors);
 }
 
