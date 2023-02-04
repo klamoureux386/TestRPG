@@ -34,7 +34,7 @@ ATestRPGCharacter::ATestRPGCharacter()
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 700.f;
+	GetCharacterMovement()->MaxWalkSpeed = baseMaxWalkSpeed;
 	GetCharacterMovement()->MaxAcceleration = 1500.0f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
@@ -75,7 +75,7 @@ void ATestRPGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATestRPGCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Evade", IE_Pressed, this, &ATestRPGCharacter::StartSlide);
@@ -113,9 +113,9 @@ void ATestRPGCharacter::Tick(float deltaSeconds) {
 		if (GEngine && ShowDebug) {
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, VelocityAsString());
 		}
-		const float scale = 1.001f;
 
-		AddMovementInput(slideDirection, scale);
+		AdjustSlide();
+
 	}
 
 }
@@ -165,18 +165,57 @@ void ATestRPGCharacter::MoveRight(float Value)
 	}
 }
 
+//https://www.youtube.com/watch?v=oe2vPXvFLpI
+void ATestRPGCharacter::Jump() {
+
+	if (m_jump_curve) {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Jump curve found, implement custom jump."));
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Jump curve not found on ATestRPGCharacter::Jump()."));
+		ACharacter::Jump();
+	}
+}
+
 void ATestRPGCharacter::StartSlide()
 {
 
 	isSliding = true;
 
 	slideDirection = GetActorForwardVector();
-	GetCharacterMovement()->MaxAcceleration = 500.0f;
+	GetCharacterMovement()->MaxAcceleration = 5000.0f;
 
 	if (GEngine && ShowDebug) {
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Slide Start, Slide Direction: " + slideDirection.ToString()) + " Starting Velocity: " + VelocityAsString());
-		GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
 	}
+
+	GetCharacterMovement()->MaxWalkSpeed = baseMaxWalkSpeed + 300.f;
+
+}
+
+void ATestRPGCharacter::AdjustSlide() {
+
+	float scale = 0.01f;
+
+	if (!slideAccelerationCurve) {
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Slide curve not found on ATestRPGCharacter::AdjustSlide()."));
+	}
+
+	float groundAngle = SurroundingsChecker->OrientedGroundAngle;
+
+	//TO DO: MOVE THESE CURVE MULTIPLIERS OUT TO SETABLE VARIABLES
+	//Set max acceleration based on slope
+	float maxAcceleration = slideAccelerationCurve->FloatCurve.Eval(groundAngle) * 1000;
+	GetCharacterMovement()->MaxAcceleration = maxAcceleration;
+
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Total Acceleration: " + FString::SanitizeFloat(maxAcceleration)));
+
+	//Both MaxWalkSpeed and MaxAcceleration need to be made slope-dependent
+	float maxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+
+	GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed - 1.0f;
+
+	GetCharacterMovement()->AddInputVector(slideDirection);
 
 }
 
@@ -187,8 +226,9 @@ void ATestRPGCharacter::EndSlide()
 
 	if (GEngine && ShowDebug) {
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Slide End"));
-		GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	}
+
+	GetCharacterMovement()->MaxWalkSpeed = baseMaxWalkSpeed;
 }
 
 FString ATestRPGCharacter::VelocityAsString() {
@@ -220,7 +260,10 @@ void ATestRPGCharacter::DrawDebugLines() {
 	//Forward adjustment for ground impact normal
 	double groundAngle = SurroundingsChecker->OrientedGroundAngle;
 	FVector3d groundRotateAngle = GetActorForwardVector().RotateAngleAxis(groundAngle, -GetActorRightVector());
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Ground Rotate Angle: " + groundRotateAngle.ToString()));
+
+	//Keep for debugging
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Ground Rotate Angle: " + groundRotateAngle.ToString()));
+
 	DrawDebugLine(GetWorld(), startPos, startPos + groundRotateAngle * 100, FColor::Blue, false, 0, 0, 1.0f);
 	//DrawDebugLine(GetWorld(), startPos, startPos + (GetActorForwardVector().RotateAngleAxis(SurroundingsChecker->OrientedGroundAngle, FVector3d::YAxisVector)) * 100, FColor::Blue, false, 0, 0, 1.0f);
 	//Forward vector

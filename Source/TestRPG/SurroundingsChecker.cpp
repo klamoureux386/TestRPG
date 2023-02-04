@@ -74,8 +74,7 @@ void USurroundingsChecker::SetOrientedGroundAngle() {
 
 	//Debug message for raycast positions
 	if (GEngine && ShowDebug) {
-		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "backRaycastStart: " + BackRaycastPos().ToString());
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "ActorCenter: " + ActorCenter.GetLocation().ToString());
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "backRaycastStart: " + backRaycastStart.ToString() + "\n" + "frontRaycastStart: " + frontRaycastStart.ToString());
 	}
 
 	FCollisionQueryParams CollisionParams = FCollisionQueryParams();

@@ -18,21 +18,19 @@ class TESTRPG_API USurroundingsChecker : public USceneComponent
 
 public:
 
-	//TO DO: Properly handle actor forward direction when calculating front/back raycast pos
+	UFUNCTION(Category = "Utility", BlueprintCallable)
+	FVector FrontRaycastPos() { return ActorCenter.GetLocation() + (RaycastDistance * GetOwner()->GetActorForwardVector()); }
 
 	UFUNCTION(Category = "Utility", BlueprintCallable)
-	FVector FrontRaycastPos() { return ActorCenter.GetLocation() + (FrontRaycastOffset /** GetOwner()->GetActorForwardVector()*/); }
-
-	UFUNCTION(Category = "Utility", BlueprintCallable)
-	FVector BackRaycastPos() { return ActorCenter.GetLocation() + (BackRaycastOffset /** GetOwner()->GetActorForwardVector()*/); }
+	FVector BackRaycastPos() { return ActorCenter.GetLocation() - (RaycastDistance * GetOwner()->GetActorForwardVector()); }
 
 	/** Relative Ground Angle */
 	UPROPERTY(Category = "Utility", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	double OrientedGroundAngle;
+	double OrientedGroundAngle = 0;
 
 	/** Show Debug */
 	UPROPERTY(Category = "Debug", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	bool ShowDebug = true;
+	bool ShowDebug = false;
 
 	USurroundingsChecker();
 	void GetSurroundings();
@@ -43,9 +41,7 @@ public:
 private:
 
 	UPROPERTY(Category = "Utility", VisibleAnywhere, BlueprintReadOnly, meta = (MakeEditWidget = true, AllowPrivateAccess = true))
-	FVector FrontRaycastOffset = FVector(10, 0, 0);
-	UPROPERTY(Category = "Utility", VisibleAnywhere, BlueprintReadOnly, meta = (MakeEditWidget = true, AllowPrivateAccess = true))
-	FVector BackRaycastOffset = FVector(-10, 0, 0);
+	int RaycastDistance = 10;
 
 	TArray<AActor*> actorsToIgnore;
 	void SetGroundNormal();

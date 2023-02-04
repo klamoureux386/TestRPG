@@ -50,6 +50,19 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Debug")
 	bool ShowDebug = true;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
+	float baseMaxWalkSpeed = 700.f;
+	
+	//https://www.youtube.com/watch?v=oe2vPXvFLpI
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats", meta = (DisplayName = "Jump Curve"))
+	UCurveFloat* m_jump_curve;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats", meta = (DisplayName = "Slide Acceleration Curve"))
+	UCurveFloat* slideAccelerationCurve;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats", meta = (DisplayName = "Slide Speed Curve"))
+	UCurveFloat* slideSpeedCurve;
+
 	float forwardInput = 0.0f;
 	float rightInput = 0.0f;
 
@@ -63,6 +76,10 @@ protected:
 
 	/** Start Slide */
 	void StartSlide();
+
+	void AdjustSlide();
+
+	virtual void Jump() override;
 
 	/** End Slide */
 	void EndSlide();
