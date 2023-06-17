@@ -189,7 +189,7 @@ void ATestRPGCharacter::StartSlide()
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Slide Start, Slide Direction: " + slideDirection.ToString()) + " Starting Velocity: " + VelocityAsString());
 	}
 
-	GetCharacterMovement()->MaxWalkSpeed = baseMaxWalkSpeed + 300.f;
+	GetCharacterMovement()->MaxWalkSpeed = baseSlideSpeed;
 
 }
 
@@ -213,7 +213,29 @@ void ATestRPGCharacter::AdjustSlide() {
 	//Both MaxWalkSpeed and MaxAcceleration need to be made slope-dependent
 	float maxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
-	GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed - 1.0f;
+	//Slide speed increase
+	if (groundAngle <= -1) {
+		
+		float extraMaxSpeed = maxSlideSpeed - baseSlideSpeed;
+		float maxGroundAngle = 45;
+
+		float walkSpeedScalar = baseMaxWalkSpeed + ((groundAngle / maxGroundAngle) * -299.0f) + (groundAngle > 0 ? 1 : -1);
+
+		float currentWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+		
+		if (currentWalkSpeed < maxSlideSpeed)
+			GetCharacterMovement()->MaxWalkSpeed = currentWalkSpeed + (-groundAngle / 45) + 0.05;
+		else
+			GetCharacterMovement()->MaxWalkSpeed = maxSlideSpeed;
+
+	}
+	//Slide speed decrease
+	else {
+
+		//Gradually decay more as you get slower? idk see what feels right`
+		GetCharacterMovement()->MaxWalkSpeed = maxWalkSpeed - 1.5f;
+	
+	}
 
 	GetCharacterMovement()->AddInputVector(slideDirection);
 

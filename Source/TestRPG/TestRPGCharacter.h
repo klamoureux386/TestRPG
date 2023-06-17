@@ -52,7 +52,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
 	float baseMaxWalkSpeed = 700.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
+	float baseSlideSpeed = 1000.f;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
+	float maxSlideSpeed = 1300.f;
+
 	//https://www.youtube.com/watch?v=oe2vPXvFLpI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats", meta = (DisplayName = "Jump Curve"))
 	UCurveFloat* m_jump_curve;

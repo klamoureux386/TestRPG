@@ -30,7 +30,7 @@ public:
 
 	/** Show Debug */
 	UPROPERTY(Category = "Debug", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	bool ShowDebug = false;
+	bool ShowDebug = true;
 
 	USurroundingsChecker();
 	void GetSurroundings();
