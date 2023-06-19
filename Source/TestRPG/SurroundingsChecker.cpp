@@ -96,9 +96,9 @@ void USurroundingsChecker::SetOrientedGroundAngle() {
 		FRotator rotation = UKismetMathLibrary::FindLookAtRotation(flatLineForward, flatLineAngled);
 		double angle = rotation.Pitch;
 		//Debug message to ensure raycast masking works
-		if (GEngine && ShowDebug) {
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "orientedGroundAngle: " + FString::SanitizeFloat(angle));
-		}
+		//if (GEngine && ShowDebug) {
+		//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, "orientedGroundAngle: " + FString::SanitizeFloat(angle));
+		//}
 
 		OrientedGroundAngle = angle;
 	}
