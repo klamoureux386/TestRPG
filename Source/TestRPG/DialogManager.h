@@ -3,58 +3,54 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Subsystems/GameInstanceSubsystem.h"
 #include "DialogManager.generated.h"
 
 USTRUCT()
 struct FDialog
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 public:
 	FDialog();
 
-	int Id;			//Unique Id for Dialog
-	FString Line;		//Content of subtitle
-	//Sound
-	int Duration;		//Duration of line to be shown as subtitle
-	int NextDialogId;	//Dialog to follow after completion of this Dialog
+	int Id;					//Unique Id for Dialog
+	FString Text;			//Content of subtitle
+	FString Description;	//5 W's description
+	USoundBase* Sound;		//Ptr to sound file
+	int Duration;			//Duration of line to be shown as subtitle
+	int NextDialogId;		//Dialog to follow after completion of this Dialog
 
-	FDialog(int id, FString line, int duration, int nextDialog)
+	FDialog(int id, FString text, int duration, int nextDialog)
 	{
 		Id = id;
-		Line = line;
+		Text = text;
 		Duration = duration;
 		NextDialogId = nextDialog;
 	}
 
-	FDialog(int id, FString line, int duration)
+	FDialog(int id, FString text, int duration)
 	{
 		Id = id;
-		Line = line;
+		Text = text;
 		Duration = duration;
 		NextDialogId = NULL;
 	}
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class TESTRPG_API UDialogManager : public UActorComponent
+UCLASS()
+class TESTRPG_API UDialogManager : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UDialogManager();
+	public:
+		// Sets default values for this component's properties
+		UDialogManager();
+		FDialog GetDialogById(int32 id);
 
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-	UPROPERTY(EditAnywhere, Category = "Dialog")
-	TMap<int32, FDialog> DialogLookup;
+	protected:
+		UPROPERTY(EditAnywhere, Category = "Dialog")
+		TMap<int32, FDialog> DialogLookup;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	FDialog GetDialogById(int32 id);
-		
+	
 };

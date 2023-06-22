@@ -3,49 +3,30 @@
 
 #include "DialogManager.h"
 
+FDialog::FDialog()
+{
+}
+
 // Sets default values for this component's properties
 UDialogManager::UDialogManager()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
 
 	TArray<FDialog> dialogs =
 	{
-		FDialog(1, "a", 50, 2),
-		FDialog(2, "b", 50, 3)
+		FDialog(1, "Dialog1", 50, 2),
+		FDialog(2, "Dialog2", 50, 3)
 	};
 
 	for (FDialog d : dialogs)
 	{
 		DialogLookup.Add(d.Id, d);
 	}
+
+	/*GetDialogById(3);*/
 }
 
 
-// Called when the game starts
-void UDialogManager::BeginPlay()
-{
-	Super::BeginPlay();
-
-	GetDialogById(3);
-	
-}
-
-
-// Called every frame
-void UDialogManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-}
-
-
-FDialog::FDialog()
-{
-}
-
-
+/// <summary> Returns Dialog associated with Id. </summary>
 FDialog UDialogManager::GetDialogById(int32 id)
 {
 	FDialog* dialog = DialogLookup.Find(id);
