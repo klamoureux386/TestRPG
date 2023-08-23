@@ -23,6 +23,8 @@ ADialogZone::ADialogZone()
 void ADialogZone::BeginPlay()
 {
 	Super::BeginPlay();
+
+	DialogManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogManager>();
 	
 }
 
@@ -35,8 +37,6 @@ void ADialogZone::Tick(float DeltaTime)
 
 void ADialogZone::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UDialogManager* DialogManager = GetWorld()->GetGameInstance()->GetSubsystem<UDialogManager>();
-
 	FDialog dialog = DialogManager->GetDialogById(1);
 
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, dialog.Text);

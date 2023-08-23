@@ -21,18 +21,20 @@ public:
 	int Duration;			//Duration of line to be shown as subtitle
 	int NextDialogId;		//Dialog to follow after completion of this Dialog
 
-	FDialog(int id, FString text, int duration, int nextDialog)
+	FDialog(int id, FString text, FString description, int duration, int nextDialog)
 	{
 		Id = id;
 		Text = text;
+		Description = description;
 		Duration = duration;
 		NextDialogId = nextDialog;
 	}
 
-	FDialog(int id, FString text, int duration)
+	FDialog(int id, FString text, FString description, int duration)
 	{
 		Id = id;
 		Text = text;
+		Description = description;
 		Duration = duration;
 		NextDialogId = NULL;
 	}
