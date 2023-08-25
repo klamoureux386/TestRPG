@@ -3,14 +3,9 @@
 
 #include "DialogManager.h"
 
-FDialog::FDialog()
-{
-}
-
 // Sets default values for this component's properties
 UDialogManager::UDialogManager()
 {
-
 	TArray<FDialog> dialogs =
 	{
 		FDialog(1, "Dialog1", "Character1 Dialog", 50, 2),

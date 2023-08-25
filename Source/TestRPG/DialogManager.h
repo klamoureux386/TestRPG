@@ -4,41 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Dialog.h"
 #include "DialogManager.generated.h"
-
-USTRUCT()
-struct FDialog
-{
-	GENERATED_BODY()
-
-public:
-	FDialog();
-
-	int Id;					//Unique Id for Dialog
-	FString Text;			//Content of subtitle
-	FString Description;	//5 W's description
-	USoundBase* Sound;		//Ptr to sound file
-	int Duration;			//Duration of line to be shown as subtitle
-	int NextDialogId;		//Dialog to follow after completion of this Dialog
-
-	FDialog(int id, FString text, FString description, int duration, int nextDialog)
-	{
-		Id = id;
-		Text = text;
-		Description = description;
-		Duration = duration;
-		NextDialogId = nextDialog;
-	}
-
-	FDialog(int id, FString text, FString description, int duration)
-	{
-		Id = id;
-		Text = text;
-		Description = description;
-		Duration = duration;
-		NextDialogId = NULL;
-	}
-};
 
 UCLASS()
 class TESTRPG_API UDialogManager : public UGameInstanceSubsystem
