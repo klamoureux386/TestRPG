@@ -26,11 +26,11 @@ void UInteractionComponent::BeginPlay()
 }
 
 
-FString UInteractionComponent::RetrieveCharacterDialog() 
+FDialog UInteractionComponent::RetrieveCharacterDialog() 
 {
 	FDialog dialog = DialogManager->GetDialogById(CharacterId);
 
-	return dialog.Text;
+	return dialog;
 }
 
 // Called every frame

@@ -30,5 +30,5 @@ public:
 	//virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable, Category = "NPC_Interact")
-	FString RetrieveCharacterDialog();
+	FDialog RetrieveCharacterDialog();
 };

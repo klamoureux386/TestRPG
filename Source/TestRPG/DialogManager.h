@@ -15,6 +15,7 @@ class TESTRPG_API UDialogManager : public UGameInstanceSubsystem
 	public:
 		// Sets default values for this component's properties
 		UDialogManager();
+		UFUNCTION(BlueprintCallable)
 		FDialog GetDialogById(int32 id);
 
 	protected:
