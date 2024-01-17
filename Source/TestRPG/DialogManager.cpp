@@ -6,7 +6,7 @@
 // Sets default values for this component's properties
 UDialogManager::UDialogManager()
 {
-	TArray<int32> options = { 1, 2, 3 };
+	TArray<int32> options = { 2, 3, 4 };
 
 	TArray<FDialog> dialogs =
 	{
