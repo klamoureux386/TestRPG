@@ -17,21 +17,35 @@ public:
 	FDialog();
 	~FDialog();
 
+	//Unique Id for Dialog
 	UPROPERTY(BlueprintReadOnly)
-	int32 Id;						//Unique Id for Dialog
-	UPROPERTY(BlueprintReadOnly)
-	FString Text;					//Content of subtitle
-	UPROPERTY(BlueprintReadOnly)
-	FString Description;			//5 W's description
-	USoundBase* Sound;				//Ptr to sound file
-	UPROPERTY(BlueprintReadOnly)
-	int32 Duration;					//Duration of line to be shown as subtitle
-	UPROPERTY(BlueprintReadOnly)
-	TArray<int32> ResponseOptions;	//Optional array of dialog response option ids
-	UPROPERTY(BlueprintReadOnly)
-	int32 NextDialogId;				//Dialog to follow after completion of this Dialog
+	int32 Id;
 
-	FDialog(int32 id, FString text, FString description, int32 duration, TArray<int32> responseOptions, int32 nextDialog)
+	//Content of subtitle
+	UPROPERTY(BlueprintReadOnly)
+	FString Text = "";
+
+	//5 W's description
+	UPROPERTY(BlueprintReadOnly)
+	FString Description = "";
+
+	//Duration of line to be shown as subtitle in seconds
+	UPROPERTY(BlueprintReadOnly)
+	float Duration = 0;
+
+	//Optional array of dialog response option ids
+	UPROPERTY(BlueprintReadOnly)
+	TArray<int32> ResponseOptions;
+
+	//Dialog to follow after completion of this Dialog
+	UPROPERTY(BlueprintReadOnly)
+	int32 NextDialogId;
+
+	//Ptr to sound file
+	UPROPERTY(BlueprintReadOnly, Category = "Audio")
+	USoundBase* Sound;
+
+	FDialog(int32 id, FString text, FString description, float duration, TArray<int32> responseOptions, int32 nextDialog, USoundBase* sound)
 	{
 		Id = id;
 		Text = text;
@@ -39,22 +53,55 @@ public:
 		Duration = duration;
 		ResponseOptions = responseOptions;
 		NextDialogId = nextDialog;
+		Sound = sound;
 	}
 
-	FDialog(int32 id, FString text, FString description, int32 duration, int32 nextDialog)
+	FDialog(int32 id, FString text, FString description, float duration, TArray<int32> responseOptions, int32 nextDialog)
+	{
+		Id = id;
+		Text = text;
+		Description = description;
+		Duration = duration;
+		ResponseOptions = responseOptions;
+		NextDialogId = nextDialog;
+		Sound = nullptr;
+	}
+
+	FDialog(int32 id, FString text, FString description, float duration, int32 nextDialog, USoundBase* sound)
 	{
 		Id = id;
 		Text = text;
 		Description = description;
 		Duration = duration;
 		NextDialogId = nextDialog;
+		Sound = sound;
 	}
 
-	FDialog(int32 id, FString text, FString description, int32 duration)
+	FDialog(int32 id, FString text, FString description, float duration, int32 nextDialog)
 	{
 		Id = id;
 		Text = text;
 		Description = description;
 		Duration = duration;
+		NextDialogId = nextDialog;
+		Sound = nullptr;
+	}
+
+	FDialog(int32 id, FString text, FString description, float duration, USoundBase* sound)
+	{
+		Id = id;
+		Text = text;
+		Description = description;
+		Duration = duration;
+		Sound = sound;
+	}
+
+	FDialog(int32 id, FString text, FString description, float duration)
+	{
+		Id = id;
+		Text = text;
+		Description = description;
+		Duration = duration;
+		Sound = nullptr;
 	}
 };
