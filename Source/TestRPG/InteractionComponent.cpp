@@ -28,6 +28,7 @@ void UInteractionComponent::BeginPlay()
 
 FDialog UInteractionComponent::RetrieveCharacterDialog() 
 {
+	//To do: Swap this off CharacterId
 	FDialog dialog = DialogManager->GetDialogById(CharacterId);
 
 	return dialog;

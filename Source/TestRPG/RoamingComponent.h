@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "RoamingLocation.h"
 #include "RoamingComponent.generated.h"
 
 
@@ -16,11 +17,11 @@ public:
 	// Sets default values for this component's properties
 	URoamingComponent();
 
-	UPROPERTY(EditAnywhere, Category = "NPC_Roaming")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC_Roaming")
 	bool IsRoaming;
 
-	UPROPERTY(EditAnywhere, Category = "NPC_Roaming")
-	TArray<FVector3d> TargetLocations;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC_Roaming")
+	TArray<FRoamingLocation> RoamingLocations;
 
 protected:
 	// Called when the game starts
